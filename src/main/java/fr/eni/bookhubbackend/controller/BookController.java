@@ -31,15 +31,12 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<?> createBook(@Valid @RequestBody Book book) {
-        System.out.println("add book controller");
         try {
-            System.out.println("try add book");
-            System.out.println(book);
-            if (book != null) {
+            if (book != null && book.getId() == null) {
                 bookService.addBook(book);
                 return ResponseEntity.ok(book);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

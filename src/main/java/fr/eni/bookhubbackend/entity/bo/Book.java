@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,19 +24,19 @@ public class Book {
     @Column(length = 13, nullable = false)
     private String isbn;
 
-//    @NotNull
-//    @ManyToMany
-//    private List<Author> author;
+    @NotNull
+    @ManyToMany
+    private List<Author> author;
 
     private String description;
 
-//    @NotNull
-//    @ManyToMany
-//    private List<Category> category;
+    @NotNull
+    @ManyToMany
+    private List<Category> category;
 
     private String image;
 
     private LocalDate date;
 
-    private boolean isAvailable = true;
+    private Boolean isAvailable = true;
 }
