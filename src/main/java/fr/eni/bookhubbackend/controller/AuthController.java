@@ -1,8 +1,8 @@
 package fr.eni.bookhubbackend.controller;
 
-import fr.eni.bookhubbackend.entity.bo.dto.AuthResponse;
-import fr.eni.bookhubbackend.entity.bo.dto.LoginRequest;
-import fr.eni.bookhubbackend.entity.bo.dto.RegisterRequest;
+import fr.eni.bookhubbackend.entity.bo.dto.AuthResponseDto;
+import fr.eni.bookhubbackend.entity.bo.dto.LoginRequestDto;
+import fr.eni.bookhubbackend.entity.bo.dto.RegisterRequestDto;
 import fr.eni.bookhubbackend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +21,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
+    public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterRequestDto req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(req));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
+    public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto req) {
         return ResponseEntity.ok(authService.login(req));
     }
 }

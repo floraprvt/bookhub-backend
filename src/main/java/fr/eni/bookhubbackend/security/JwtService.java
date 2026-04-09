@@ -11,19 +11,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    @Value("${app.jwt.secret}")   // 256 bits minimum dans application.properties
+    @Value("${app.jwt.secret}")
     private String secretKey;
 
-    @Value("${app.jwt.expiration:86400000}") // 24h en ms
+    @Value("${app.jwt.expiration:86400000}")
     private long expiration;
 
     public String generateToken(User user) {
@@ -41,8 +37,13 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        return extractEmail(token).equals(userDetails.getUsername())
-                && !getClaims(token).getExpiration().before(new Date());
+        try {
+            String email = extractEmail(token);
+            return email.equals(userDetails.getUsername())
+                    && !getClaims(token).getExpiration().before(new Date());
+        } catch (io.jsonwebtoken.JwtException e) {
+            return false;
+        }
     }
 
     private Claims getClaims(String token) {

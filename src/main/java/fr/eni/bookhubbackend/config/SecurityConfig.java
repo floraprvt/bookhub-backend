@@ -29,10 +29,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(AbstractHttpConfigurer::disable)          // JWT = stateless, CSRF inutile
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // register + login publics
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -49,7 +49,7 @@ public class SecurityConfig {
     }
 
     @Bean public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(12); // coût 12 selon le CDC
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
