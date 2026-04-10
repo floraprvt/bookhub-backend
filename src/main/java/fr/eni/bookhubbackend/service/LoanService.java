@@ -7,7 +7,7 @@ import fr.eni.bookhubbackend.entity.enums.RoleEnum;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.LoanRepository;
 import fr.eni.bookhubbackend.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException; // <-- L'import important ici
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
