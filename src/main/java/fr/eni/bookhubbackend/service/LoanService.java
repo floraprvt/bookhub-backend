@@ -35,7 +35,7 @@ public class LoanService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new EntityNotFoundException("Book not found."));
 
-        if (!book.isAvailable()) {
+        if (!book.getIsAvailable()) {
             throw new IllegalStateException("This book is not available.");
         }
 
@@ -60,7 +60,7 @@ public class LoanService {
                 .isReturned(false)
                 .build();
 
-        book.setAvailable(false);
+        book.setIsAvailable(false);
         bookRepository.save(book);
 
         return loanRepository.save(newLoan);
@@ -87,7 +87,7 @@ public class LoanService {
 
         loan.setIsReturned(true);
         loan.setReturnDate(LocalDate.now());
-        loan.getBook().setAvailable(true);
+        loan.getBook().setIsAvailable(true);
         bookRepository.save(loan.getBook());
         return loanRepository.save(loan);
     }
