@@ -2,7 +2,7 @@ package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.service.BookService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -38,7 +38,7 @@ public class BookController {
         try {
             if (book != null && book.getId() == null) {
                 bookService.addBook(book);
-                return ResponseEntity.ok(book);
+                return ResponseEntity.status(HttpStatus.CREATED).body(book);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
             }
@@ -61,7 +61,7 @@ public class BookController {
         }
     }
 
-    @DeleteMapping("api/books/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable String id) {
         try {
             final long idBook = Long.parseLong(id);

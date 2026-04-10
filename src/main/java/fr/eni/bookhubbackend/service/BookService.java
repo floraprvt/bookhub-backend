@@ -4,7 +4,7 @@ import fr.eni.bookhubbackend.entity.bo.Book;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.mapper.BookMapper;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static fr.eni.bookhubbackend.ErrorKeys.BOOK_NOT_FOUND;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BookService {
 
