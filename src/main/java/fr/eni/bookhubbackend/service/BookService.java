@@ -4,7 +4,7 @@ import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.entity.dto.Search;
 import fr.eni.bookhubbackend.mapper.BookMapper;
 import fr.eni.bookhubbackend.repository.BookRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -13,12 +13,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import static fr.eni.bookhubbackend.ErrorKeys.BOOK_NOT_FOUND;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Service
 public class BookService {
 
-    private BookRepository bookRepository;
-    private BookMapper bookMapper;
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
 
 
     public BookDto findBookById(final Long id) {
