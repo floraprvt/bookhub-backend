@@ -3,6 +3,7 @@ package fr.eni.bookhubbackend.entity.bo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 public class Loan {
     @Id
@@ -25,4 +27,12 @@ public class Loan {
 
     @NotNull
     private Boolean isReturned = false;
+
+    @NotNull
+    @ManyToOne
+    private User user;
+
+    @NotNull
+    @ManyToOne
+    private Book book;
 }
