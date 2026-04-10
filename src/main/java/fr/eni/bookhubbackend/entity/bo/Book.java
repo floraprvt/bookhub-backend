@@ -40,5 +40,5 @@ public class Book {
 
     private LocalDate date;
 
-    private boolean isAvailable = true;
+    private Boolean isAvailable = true;
 }
