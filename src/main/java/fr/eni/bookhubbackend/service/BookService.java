@@ -37,5 +37,11 @@ public class BookService {
         }
     }
 
-
+    public void deleteBook(Long idBook) {
+        try {
+            bookRepository.deleteById(idBook);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Book could not be deleted");
+        }
+    }
 }

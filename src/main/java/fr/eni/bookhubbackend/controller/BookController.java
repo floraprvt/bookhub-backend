@@ -52,4 +52,20 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @DeleteMapping("api/books/{id}")
+    public ResponseEntity<?> deleteBook(@PathVariable String id) {
+        try {
+            final long idBook = Long.parseLong(id);
+
+            if (idBook <= 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+            }
+
+            bookService.deleteBook(idBook);
+            return ResponseEntity.ok("Book with id " + id + " has been deleted");
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+        }
+    }
 }
