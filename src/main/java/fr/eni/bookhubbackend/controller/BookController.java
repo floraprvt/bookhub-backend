@@ -1,22 +1,30 @@
 package fr.eni.bookhubbackend.controller;
 
-import fr.eni.bookhubbackend.entity.bo.Book;
+import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.service.BookService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import fr.eni.bookhubbackend.entity.bo.Book;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
 
     private final BookService bookService;
 
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
+    @GetMapping("{id}")
+    public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
+        return ResponseEntity.ok(bookService.findBookById(id));
     }
 
     @GetMapping
