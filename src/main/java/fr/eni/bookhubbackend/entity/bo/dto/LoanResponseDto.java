@@ -17,4 +17,5 @@ public class LoanResponseDto {
     private Boolean isReturned;
     private Long userId;
     private String bookTitle;
+    private boolean late;
 }

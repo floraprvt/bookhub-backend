@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,14 @@ public class LoanService {
         int activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
         if (activeLoans >= 3) {
             throw new IllegalStateException("The user has reached their maximum quota of 3 loans.");
+        }
+
+        boolean hasLateLoans = loanRepository.findAllByUser(user).stream()
+                .anyMatch(l -> !l.getIsReturned()
+                        && l.getReturnDate().isBefore(LocalDate.now()));
+
+        if (hasLateLoans) {
+            throw new IllegalStateException("You cannot borrow a new book while you have overdue loans");
         }
 
         Loan newLoan = Loan.builder()
@@ -83,11 +92,16 @@ public class LoanService {
         return loanRepository.save(loan);
     }
 
-    public List<Loan> getMyLoans(String email){
+    public Map<String, List<Loan>> getMyLoans(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found."));
-        return loanRepository.findAllByUser(user);
 
+        List<Loan> all = loanRepository.findAllByUser(user);
+
+        return Map.of(
+                "active", all.stream().filter(l -> !l.getIsReturned()).toList(),
+                "history", all.stream().filter(l -> l.getIsReturned()).toList()
+        );
     }
 
     public List<Loan> getAllLoans(){

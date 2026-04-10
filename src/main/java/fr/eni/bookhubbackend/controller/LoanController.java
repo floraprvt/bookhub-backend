@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/loans")
@@ -55,12 +56,15 @@ public class LoanController {
 
     @GetMapping("/my")
     @Operation(summary = "Mes emprunts", description = "Récupère la liste des emprunts de l'utilisateur connecté.")
-    public ResponseEntity<List<LoanResponseDto>> getMyLoans(Principal principal) {
+    public ResponseEntity<Map<String, List<LoanResponseDto>>> getMyLoans(Principal principal) {
         String email = principal.getName();
-        List<Loan> myLoans = loanService.getMyLoans(email);
-        List<LoanResponseDto> response = myLoans.stream()
-                .map(loanMapper::toDto)
-                .toList();
+        Map<String, List<Loan>> myLoans = loanService.getMyLoans(email);
+
+        Map<String, List<LoanResponseDto>> response = Map.of(
+                "active", myLoans.get("active").stream().map(loanMapper::toDto).toList(),
+                "history", myLoans.get("history").stream().map(loanMapper::toDto).toList()
+        );
+
         return ResponseEntity.ok(response);
     }
 
