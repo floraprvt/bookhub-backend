@@ -28,19 +28,19 @@ public class BookService {
         return bookRepository.findAll();
     }
 
-    public Book addBook(Book book) {
+    public void addBook(Book book) {
         book.setIsAvailable(true);
 
          try {
-            return bookRepository.save(book);
+            bookRepository.save(book);
          } catch (Exception e) {
              throw new IllegalArgumentException("Book could not be saved");
          }
     }
 
-    public Book updateBook(Book book) {
+    public void updateBook(Book book) {
         try {
-            return bookRepository.save(book);
+            bookRepository.save(book);
         }  catch (Exception e) {
             throw new IllegalArgumentException("Book could not be saved");
         }
