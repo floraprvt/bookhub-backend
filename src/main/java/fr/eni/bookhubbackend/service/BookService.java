@@ -20,6 +20,8 @@ public class BookService {
     }
 
     public Book addBook(Book book) {
+        book.setIsAvailable(true);
+
          try {
             return bookRepository.save(book);
          } catch (Exception e) {
