@@ -30,27 +30,14 @@ public class BookService {
 
     public void addBook(Book book) {
         book.setIsAvailable(true);
-
-         try {
-            bookRepository.save(book);
-         } catch (Exception e) {
-             throw new IllegalArgumentException("Book could not be saved");
-         }
+        bookRepository.save(book);
     }
 
     public void updateBook(Book book) {
-        try {
-            bookRepository.save(book);
-        }  catch (Exception e) {
-            throw new IllegalArgumentException("Book could not be saved");
-        }
+        bookRepository.save(book);
     }
 
     public void deleteBook(Long idBook) {
-        try {
-            bookRepository.deleteById(idBook);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Book could not be deleted");
-        }
+        bookRepository.deleteById(idBook);
     }
 }
