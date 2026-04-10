@@ -29,5 +29,13 @@ public class BookService {
          }
     }
 
+    public Book updateBook(Book book) {
+        try {
+            return bookRepository.save(book);
+        }  catch (Exception e) {
+            throw new IllegalArgumentException("Book could not be saved");
+        }
+    }
+
 
 }
