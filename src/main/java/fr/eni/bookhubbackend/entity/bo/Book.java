@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.Year;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class Book {
 
     private String image;
 
-    private Year date;
+    private LocalDate date;
 
     private Boolean isAvailable = true;
 }

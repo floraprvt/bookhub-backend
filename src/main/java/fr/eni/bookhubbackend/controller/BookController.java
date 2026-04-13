@@ -1,9 +1,14 @@
 package fr.eni.bookhubbackend.controller;
 
+import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
+import fr.eni.bookhubbackend.entity.dto.RatingDto;
 import fr.eni.bookhubbackend.entity.dto.Search;
+import fr.eni.bookhubbackend.mapper.RatingMapper;
 import fr.eni.bookhubbackend.service.BookService;
-import lombok.AllArgsConstructor;
+import fr.eni.bookhubbackend.service.RatingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +25,17 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books")
+@Tag(name = "Books", description = "Gestion des livres  ")
 public class BookController {
 
     private final BookService bookService;
+    private final RatingService ratingService;
+    private final RatingMapper ratingMapper;
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
@@ -35,7 +43,7 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BookDto>> findAllBooks(final Pageable pageable) {
+    public ResponseEntity<Page<BookDto>> findAllBooks(@ParameterObject @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
         return ResponseEntity.ok(bookService.findAllBooks(pageable));
     }
 
@@ -87,5 +95,18 @@ public class BookController {
         } catch (NumberFormatException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
+    }
+
+    @PostMapping("{id}/ratings")
+    @Operation(summary = "Ajouter un avis", description = "Ajoute l'avis de l'utilisateur sur un livre.")
+    public ResponseEntity<?> addBookRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
+        if (id <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+        }
+
+
+        Rating returnedRating = ratingService.saveRating(id, rating, principal.getName());
+        RatingDto response = ratingMapper.toRatingDto(returnedRating);
+        return ResponseEntity.ok(response);
     }
 }
