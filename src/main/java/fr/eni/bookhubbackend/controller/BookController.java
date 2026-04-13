@@ -2,10 +2,16 @@ package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
+import fr.eni.bookhubbackend.entity.dto.Search;
 import fr.eni.bookhubbackend.service.BookService;
 import fr.eni.bookhubbackend.service.RatingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,9 +40,14 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> books = bookService.getAllBooks();
-        return ResponseEntity.ok(books);
+    public ResponseEntity<Page<BookDto>> findAllBooks(@ParameterObject @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
+        return ResponseEntity.ok(bookService.findAllBooks(pageable));
+    }
+
+    @GetMapping("search")
+    public ResponseEntity<Page<BookDto>> searchBooks(@ParameterObject final Search search,  @ParameterObject
+    @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
+        return ResponseEntity.ok(bookService.searchBooks(search, pageable));
     }
 
     @PostMapping
