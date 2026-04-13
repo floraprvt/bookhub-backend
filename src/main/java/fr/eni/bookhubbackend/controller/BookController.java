@@ -43,9 +43,6 @@ public class BookController {
     public ResponseEntity<Page<BookDto>> searchBooks(@ParameterObject final Search search,  @ParameterObject
     @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
         return ResponseEntity.ok(bookService.searchBooks(search, pageable));
-    public ResponseEntity<List<Book>> getAllBooks() {
-        List<Book> books = bookService.getAllBooks();
-        return ResponseEntity.ok(books);
     }
 
     @PostMapping
