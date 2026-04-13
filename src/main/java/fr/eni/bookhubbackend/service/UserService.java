@@ -5,6 +5,9 @@ import fr.eni.bookhubbackend.entity.bo.dto.ChangePasswordRequestDto;
 import fr.eni.bookhubbackend.entity.bo.dto.ProfileResponseDto;
 import fr.eni.bookhubbackend.entity.bo.dto.UpdateProfileRequestDto;
 import fr.eni.bookhubbackend.mapper.UserMapper;
+import fr.eni.bookhubbackend.repository.LoanRepository;
+import fr.eni.bookhubbackend.repository.RatingRepository;
+import fr.eni.bookhubbackend.repository.ReservationRepository;
 import fr.eni.bookhubbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final LoanRepository loanRepository;
+    private final ReservationRepository reservationRepository;
+    private final RatingRepository ratingRepository;
 
     public ProfileResponseDto getProfile(String email){
         User user = userRepository.findByEmail(email)
@@ -51,6 +57,19 @@ public class UserService {
     public void deleteAccount(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        long activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
+        if (activeLoans>0){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete accoutn with active loans");
+        }
+
+        long activeReservations = reservationRepository.countByUser(user);
+        if (activeReservations>0){
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Cannot delete accoutn with active reservations");
+        }
+
+        reservationRepository.deleteAllByUser(user);
+        ratingRepository.deleteAllByUser(user);
+        loanRepository.deleteAllByUser(user);
         userRepository.delete(user);
     }
 
