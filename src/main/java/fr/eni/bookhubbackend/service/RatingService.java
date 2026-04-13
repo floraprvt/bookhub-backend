@@ -20,4 +20,8 @@ public class RatingService {
     public void updateRating(Rating rating) {
         ratingRepository.save(rating);
     }
+
+    public void deleteRating(final Long id) {
+         ratingRepository.deleteById(id);
+    }
 }
