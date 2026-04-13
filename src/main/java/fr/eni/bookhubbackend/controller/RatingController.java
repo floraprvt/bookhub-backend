@@ -20,12 +20,8 @@ public class RatingController {
 
     private final RatingService ratingService;
 
-    @GetMapping("{id}")
-    public ResponseEntity<Rating> findRatingById(@PathVariable final Long id) {
-        return ResponseEntity.ok(ratingService.findRatingById(id));
-    }
-
     @PutMapping("{id}")
+    @Operation(summary = "Changer un avis", description = "Permet à un utilisateur de changer un de ses avis.")
     public ResponseEntity<?> updateRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
