@@ -2,7 +2,9 @@ package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
+import fr.eni.bookhubbackend.entity.dto.RatingDto;
 import fr.eni.bookhubbackend.entity.dto.Search;
+import fr.eni.bookhubbackend.mapper.RatingMapper;
 import fr.eni.bookhubbackend.service.BookService;
 import fr.eni.bookhubbackend.service.RatingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,7 @@ public class BookController {
 
     private final BookService bookService;
     private final RatingService ratingService;
+    private final RatingMapper ratingMapper;
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
@@ -101,7 +104,9 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
 
-        ratingService.saveRating(id, rating, principal.getName());
-        return ResponseEntity.ok(rating);
+
+        Rating returnedRating = ratingService.saveRating(id, rating, principal.getName());
+        RatingDto response = ratingMapper.toRatingDto(returnedRating);
+        return ResponseEntity.ok(response);
     }
 }

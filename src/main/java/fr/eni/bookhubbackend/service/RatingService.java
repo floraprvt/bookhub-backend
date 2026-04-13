@@ -17,16 +17,16 @@ public class RatingService {
     private final RatingRepository ratingRepository;
     private final UserRepository userRepository;
 
-    public void saveRating(Long bookId, Rating rating, String email) {
+    public Rating saveRating(Long bookId, Rating rating, String email) {
         if (ratingRepository.existsByBook_IdAndUser_Email(bookId, email)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already rated this book");
         }
 
         rating.setId(null);
-        ratingRepository.save(rating);
+        return ratingRepository.save(rating);
     }
 
-    public void updateRating(final Long bookId,Rating rating, String email) {
+    public Rating updateRating(final Long bookId,Rating rating, String email) {
         User ratingUSer = userRepository.findById(rating.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         boolean isOwner = ratingUSer.getEmail().equals(email);
 
@@ -35,7 +35,7 @@ public class RatingService {
         }
 
         rating.setId(bookId);
-        ratingRepository.save(rating);
+        return ratingRepository.save(rating);
     }
 
     public void deleteRating(final Long id) {

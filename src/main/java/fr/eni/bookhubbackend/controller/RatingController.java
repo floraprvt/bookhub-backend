@@ -1,6 +1,8 @@
 package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.bo.Rating;
+import fr.eni.bookhubbackend.entity.dto.RatingDto;
+import fr.eni.bookhubbackend.mapper.RatingMapper;
 import fr.eni.bookhubbackend.service.RatingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +21,7 @@ import java.security.Principal;
 public class RatingController {
 
     private final RatingService ratingService;
+    private final RatingMapper ratingMapper;
 
     @PutMapping("{id}")
     @Operation(summary = "Changer un avis", description = "Permet à un utilisateur de changer un de ses avis.")
@@ -27,8 +30,9 @@ public class RatingController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
 
-        ratingService.updateRating(id, rating, principal.getName());
-        return ResponseEntity.ok(rating);
+        Rating returnedRating = ratingService.updateRating(id, rating, principal.getName());
+        RatingDto response = ratingMapper.toRatingDto(returnedRating);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("{id}")
