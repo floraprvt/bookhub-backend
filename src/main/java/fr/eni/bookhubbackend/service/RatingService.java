@@ -1,7 +1,9 @@
 package fr.eni.bookhubbackend.service;
 
 import fr.eni.bookhubbackend.entity.bo.Rating;
+import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.repository.RatingRepository;
+import fr.eni.bookhubbackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,15 +14,15 @@ import org.springframework.web.server.ResponseStatusException;
 public class RatingService {
 
     private final RatingRepository ratingRepository;
+    private final UserRepository userRepository;
 
     public Rating findRatingById(final Long id) {
         return ratingRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rating not found"));
     }
 
-    public void updateRating(final Long id, Rating rating, String email) {
-        System.out.print("update in service with");
-        System.out.print(rating.getUser().getEmail());
-         boolean isOwner = rating.getUser().getEmail().equals(email);
+    public void updateRating(final Long id,Rating rating, String email) {
+        User ratingUSer = userRepository.findById(rating.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        boolean isOwner = ratingUSer.getEmail().equals(email);
 
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this rating");
