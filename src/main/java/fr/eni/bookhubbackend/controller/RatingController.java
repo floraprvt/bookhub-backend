@@ -25,20 +25,21 @@ public class RatingController {
 
     @PutMapping("{id}")
     public ResponseEntity<?> updateRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
-        System.out.print("Updating rating with id: " + id);
-        System.out.print(principal.getName());
+        if (id <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+        }
 
         ratingService.updateRating(id, rating, principal.getName());
         return ResponseEntity.ok(rating);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteRating(@PathVariable final Long id) {
+    public ResponseEntity<?> deleteRating(@PathVariable final Long id, Principal principal) {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
 
-        ratingService.deleteRating(id);
+        ratingService.deleteRating(id, principal.getName());
         return ResponseEntity.ok("Rating with id " + id + " has been deleted");
     }
 }
