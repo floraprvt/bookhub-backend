@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/ratings")
@@ -22,8 +24,11 @@ public class RatingController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> updateRating(@PathVariable final Long id, @RequestBody Rating rating) {
-        ratingService.updateRating(rating);
+    public ResponseEntity<?> updateRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
+        System.out.print("Updating rating with id: " + id);
+        System.out.print(principal.getName());
+
+        ratingService.updateRating(id, rating, principal.getName());
         return ResponseEntity.ok(rating);
     }
 

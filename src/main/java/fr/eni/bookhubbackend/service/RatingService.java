@@ -17,7 +17,16 @@ public class RatingService {
         return ratingRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rating not found"));
     }
 
-    public void updateRating(Rating rating) {
+    public void updateRating(final Long id, Rating rating, String email) {
+        System.out.print("update in service with");
+        System.out.print(rating.getUser().getEmail());
+         boolean isOwner = rating.getUser().getEmail().equals(email);
+
+        if (!isOwner) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this rating");
+        }
+
+        rating.setId(id);
         ratingRepository.save(rating);
     }
 
