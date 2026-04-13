@@ -1,5 +1,6 @@
 package fr.eni.bookhubbackend.controller;
 
+import fr.eni.bookhubbackend.entity.bo.dto.ChangePasswordRequestDto;
 import fr.eni.bookhubbackend.entity.bo.dto.ProfileResponseDto;
 import fr.eni.bookhubbackend.entity.bo.dto.UpdateProfileRequestDto;
 import fr.eni.bookhubbackend.service.UserService;
@@ -33,5 +34,19 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(principal.getName(), updateProfileRequestDto));
     }
 
+    @PutMapping("/me/password")
+    @Operation(summary = "Changer son mot de passe")
+    public ResponseEntity<Void> changePassword(
+            Principal principal,
+            @Valid @RequestBody ChangePasswordRequestDto req) {
+        userService.changePassword(principal.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
 
+    @DeleteMapping("/me")
+    @Operation(summary = "Supprimer son compte")
+    public ResponseEntity<Void> deleteProfile(Principal principal) {
+        userService.deleteAccount(principal.getName());
+        return ResponseEntity.noContent().build();
+    }
 }
