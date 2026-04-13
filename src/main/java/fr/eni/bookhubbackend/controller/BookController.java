@@ -1,7 +1,11 @@
 package fr.eni.bookhubbackend.controller;
 
+import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.service.BookService;
+import fr.eni.bookhubbackend.service.RatingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,14 +17,17 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books")
+@Tag(name = "Books", description = "Gestion des livres  ")
 public class BookController {
 
     private final BookService bookService;
+    private final RatingService ratingService;
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
@@ -75,5 +82,16 @@ public class BookController {
         } catch (NumberFormatException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
+    }
+
+    @PostMapping("{id}/ratings")
+    @Operation(summary = "Ajouter un avis", description = "Ajoute l'avis de l'utilisateur sur un livre.")
+    public ResponseEntity<?> addBookRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
+        if (id <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+        }
+
+        ratingService.saveRating(id, rating, principal.getName());
+        return ResponseEntity.ok(rating);
     }
 }
