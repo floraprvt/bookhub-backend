@@ -33,16 +33,22 @@ public class BookService {
         return bookRepository.searchBook(search, pageable).map(bookMapper::toBookDto);
     }
 
-    public void addBook(Book book) {
+    public Book addBook(Book book) {
         book.setIsAvailable(true);
-        bookRepository.save(book);
+        return bookRepository.save(book);
     }
 
-    public void updateBook(Book book) {
-        bookRepository.save(book);
+    public Book updateBook(Book book) {
+        return bookRepository.save(book);
     }
 
     public void deleteBook(Long idBook) {
+        Book book = bookRepository.findById(idBook).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
+
+        if (book.getIsAvailable() == false) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete a book that is currently on loan");
+        }
+
         bookRepository.deleteById(idBook);
     }
 }

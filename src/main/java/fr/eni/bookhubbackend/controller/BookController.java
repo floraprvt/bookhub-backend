@@ -1,9 +1,15 @@
 package fr.eni.bookhubbackend.controller;
 
+import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
+import fr.eni.bookhubbackend.entity.dto.RatingDto;
 import fr.eni.bookhubbackend.entity.dto.Search;
+import fr.eni.bookhubbackend.mapper.BookMapper;
+import fr.eni.bookhubbackend.mapper.RatingMapper;
 import fr.eni.bookhubbackend.service.BookService;
-import lombok.AllArgsConstructor;
+import fr.eni.bookhubbackend.service.RatingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,14 +27,18 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.security.Principal;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/books")
+@Tag(name = "Books", description = "Gestion des livres  ")
 public class BookController {
 
     private final BookService bookService;
+    private final RatingService ratingService;
+    private final RatingMapper ratingMapper;
+    private final BookMapper bookMapper;
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
@@ -35,7 +46,8 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BookDto>> findAllBooks(@ParameterObject @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
+    public ResponseEntity<Page<BookDto>> findAllBooks( @ParameterObject
+                                                           @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
         return ResponseEntity.ok(bookService.findAllBooks(pageable));
     }
 
@@ -46,46 +58,52 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Ajouter un livre", description = "Réservé au bibliothécaire. Ajoute un nouveau livre.")
     public ResponseEntity<?> createBook(@Valid @RequestBody Book book) {
-        try {
-            if (book != null && book.getId() == null) {
-                bookService.addBook(book);
-                return ResponseEntity.status(HttpStatus.CREATED).body(book);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (book != null && book.getId() == null) {
+            Book returnedBook = bookService.addBook(book);
+            BookDto response = bookMapper.toBookDto(returnedBook);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
         }
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Mettre à jour un livre", description = "Réservé au bibliothécaire. Met à jour un livre existant.")
     public ResponseEntity<?> updateBook(@Valid @RequestBody Book book) {
-        try {
-            if (book == null || book.getId() == null || book.getId() <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
-            }
-
-            bookService.updateBook(book);
-            return ResponseEntity.ok(book);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (book == null || book.getId() == null || book.getId() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
         }
+
+        Book returnedBook = bookService.updateBook(book);
+        BookDto response = bookMapper.toBookDto(returnedBook);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBook(@PathVariable String id) {
-        try {
-            final long idBook = Long.parseLong(id);
-
-            if (idBook <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
-            }
-
-            bookService.deleteBook(idBook);
-            return ResponseEntity.ok("Book with id " + id + " has been deleted");
-        } catch (NumberFormatException e) {
+    @Operation(summary = "Supprimer un livre", description = "Réservé à l'administrateur. Supprime un livre.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
+        if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
+
+        bookService.deleteBook(id);
+        return ResponseEntity.ok("Book with id " + id + " has been deleted");
+    }
+
+    @PostMapping("{id}/ratings")
+    @Operation(summary = "Ajouter un avis", description = "Ajoute l'avis de l'utilisateur sur un livre.")
+    public ResponseEntity<?> addBookRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
+        if (id <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+        }
+
+        Rating returnedRating = ratingService.saveRating(id, rating, principal.getName());
+        RatingDto response = ratingMapper.toRatingDto(returnedRating);
+        return ResponseEntity.ok(response);
     }
 }

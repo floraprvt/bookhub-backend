@@ -3,6 +3,7 @@ package fr.eni.bookhubbackend.repository;
 import fr.eni.bookhubbackend.entity.bo.Reservation;
 import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import org.springframework.data.jpa.repository.Query;
+import fr.eni.bookhubbackend.entity.bo.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
@@ -26,4 +27,7 @@ public interface ReservationRepository extends CrudRepository<Reservation,Long> 
     List<ReservationDto> findReservationsWithRankByUser(@Param("userId") final Long userId);
 
     Long countByUserId(final Long idUser);
+    long countByUser(User user);
+    void deleteAllByUser(User user);
+
 }
