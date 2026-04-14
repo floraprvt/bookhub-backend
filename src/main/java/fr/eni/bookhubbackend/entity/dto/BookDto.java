@@ -7,5 +7,5 @@ import java.time.Year;
 import java.util.List;
 
 @Builder
-public record BookDto(String title, List<AuthorDto> author, String isbn, List<CategoryDto> category, String description, LocalDate date, String image, Boolean isAvailable) {
+public record BookDto(Long id, String title, List<AuthorDto> author, String isbn, List<CategoryDto> category, String description, LocalDate date, String image, Boolean isAvailable) {
 }
