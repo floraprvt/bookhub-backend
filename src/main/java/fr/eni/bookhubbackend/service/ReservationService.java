@@ -53,11 +53,17 @@ public class ReservationService {
     }
 
     @Transactional
-    public void deleteMyReservation(final Long userId, final Long bookId) {
-        if (!reservationRepository.existsByUserIdAndBookId(bookId, userId)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, RESERVATION_NOT_FOUND);
+    public void deleteReservation(final User user, final Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElseThrow(()
+                -> new ResponseStatusException(HttpStatus.BAD_REQUEST, RESERVATION_NOT_FOUND));
+
+        boolean isOwner = reservation.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole().equals("ROLE_ADMIN");
+
+        if(!isOwner && !isAdmin){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You're not authorized to delete this reservation");
         }
 
-        reservationRepository.deleteByUserIdAndBookId(bookId, userId);
+        reservationRepository.deleteById(id);
     }
 }

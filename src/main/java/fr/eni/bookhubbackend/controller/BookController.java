@@ -35,12 +35,12 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<BookDto>> findAllBooks(final Pageable pageable) {
+    public ResponseEntity<Page<BookDto>> findAllBooks(@ParameterObject @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
         return ResponseEntity.ok(bookService.findAllBooks(pageable));
     }
 
     @GetMapping("search")
-    public ResponseEntity<Page<BookDto>> searchBooks(@ParameterObject final Search search,  @ParameterObject
+    public ResponseEntity<Page<BookDto>> searchBooks(@ParameterObject final Search search, @ParameterObject
     @PageableDefault(size = 20, sort = "title", direction = Sort.Direction.ASC) final Pageable pageable) {
         return ResponseEntity.ok(bookService.searchBooks(search, pageable));
     }
@@ -68,7 +68,7 @@ public class BookController {
 
             bookService.updateBook(book);
             return ResponseEntity.ok(book);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

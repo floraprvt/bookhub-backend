@@ -26,8 +26,4 @@ public interface ReservationRepository extends CrudRepository<Reservation,Long> 
     List<ReservationDto> findReservationsWithRankByUser(@Param("userId") final Long userId);
 
     Long countByUserId(final Long idUser);
-
-    Boolean existsByUserIdAndBookId(final Long userId, final Long bookId);
-    void deleteByUserIdAndBookId(final Long userId, final Long bookId);
-
 }

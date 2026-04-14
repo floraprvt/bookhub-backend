@@ -7,6 +7,7 @@ import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import fr.eni.bookhubbackend.service.ReservationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,9 +31,11 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.findMyReservations(user.getId()));
     }
 
-    @DeleteMapping("my")
-    public ResponseEntity<Void> deleteMyReservations(@AuthenticationPrincipal final User user, final Long bookId) {
-        reservationService.deleteMyReservation(user.getId(), bookId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMyReservations(@AuthenticationPrincipal final User user, @PathVariable final Long id) {
+        reservationService.deleteReservation(user, id);
         return ResponseEntity.noContent().build();
     }
+
+
 }
