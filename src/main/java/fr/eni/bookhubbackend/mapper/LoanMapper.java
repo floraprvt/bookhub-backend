@@ -9,7 +9,10 @@ import org.mapstruct.Mapping;
 public interface LoanMapper {
 
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.firstName", target = "firstName")
+    @Mapping(source = "user.lastName", target = "lastName")
     @Mapping(source = "book.title", target = "bookTitle")
+    @Mapping(source = "book.id", target = "bookId")
     @Mapping(target = "late", expression = "java(!loan.getIsReturned() && loan.getReturnDate().isBefore(java.time.LocalDate.now()))")
     LoanResponseDto toDto(Loan loan);
 }

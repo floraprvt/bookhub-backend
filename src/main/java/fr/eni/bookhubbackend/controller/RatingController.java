@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,6 +23,20 @@ public class RatingController {
 
     private final RatingService ratingService;
     private final RatingMapper ratingMapper;
+
+    @GetMapping("/book/{bookId}")
+    @Operation(summary = "Lister les avis d'un livre", description = "Retourne tous les avis associés à un livre.")
+    public ResponseEntity<List<RatingDto>> getRatingsByBookId(@PathVariable final Long bookId) {
+        return ResponseEntity.ok(ratingService.getRatingsByBookId(bookId));
+    }
+
+    @PostMapping("/book/{bookId}")
+    @Operation(summary = "Ajouter un avis", description = "Permet à un utilisateur d'ajouter un avis sur un livre.")
+    public ResponseEntity<?> addRating(@PathVariable final Long bookId, @RequestBody Rating rating, Principal principal) {
+        Rating saved = ratingService.saveRating(bookId, rating, principal.getName());
+        RatingDto response = ratingMapper.toRatingDto(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
     @PutMapping("{id}")
     @Operation(summary = "Changer un avis", description = "Permet à un utilisateur de changer un de ses avis.")
