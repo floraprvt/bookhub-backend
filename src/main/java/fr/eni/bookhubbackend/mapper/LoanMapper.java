@@ -10,6 +10,7 @@ public interface LoanMapper {
 
     @Mapping(source = "user.id", target = "userId")
     @Mapping(source = "book.title", target = "bookTitle")
+    @Mapping(source = "book.id", target ="bookId")
     @Mapping(target = "late", expression = "java(!loan.getIsReturned() && loan.getReturnDate().isBefore(java.time.LocalDate.now()))")
     LoanResponseDto toDto(Loan loan);
 }
