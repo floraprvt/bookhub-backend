@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,20 +56,18 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
     public ResponseEntity<?> createBook(@Valid @RequestBody Book book) {
-        try {
-            if (book != null && book.getId() == null) {
-                bookService.addBook(book);
-                return ResponseEntity.status(HttpStatus.CREATED).body(book);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (book != null && book.getId() == null) {
+            bookService.addBook(book);
+            return ResponseEntity.status(HttpStatus.CREATED).body(book);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
         }
     }
 
     @PutMapping
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
     public ResponseEntity<?> updateBook(@Valid @RequestBody Book book) {
         try {
             if (book == null || book.getId() == null || book.getId() <= 0) {
@@ -83,19 +82,14 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBook(@PathVariable String id) {
-        try {
-            final long idBook = Long.parseLong(id);
-
-            if (idBook <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
-            }
-
-            bookService.deleteBook(idBook);
-            return ResponseEntity.ok("Book with id " + id + " has been deleted");
-        } catch (NumberFormatException e) {
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
+        if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
+
+        bookService.deleteBook(id);
+        return ResponseEntity.ok("Book with id " + id + " has been deleted");
     }
 
     @PostMapping("{id}/ratings")
