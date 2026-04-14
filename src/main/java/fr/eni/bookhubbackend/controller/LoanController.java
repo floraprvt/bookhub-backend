@@ -1,8 +1,11 @@
 package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.bo.Loan;
+import fr.eni.bookhubbackend.entity.bo.dto.DashboardStatsDto;
 import fr.eni.bookhubbackend.entity.bo.dto.LoanRequestDto;
 import fr.eni.bookhubbackend.entity.bo.dto.LoanResponseDto;
+import fr.eni.bookhubbackend.entity.bo.dto.OverdueLoanDto;
+import fr.eni.bookhubbackend.entity.bo.dto.TopBookDto;
 import fr.eni.bookhubbackend.mapper.LoanMapper;
 import fr.eni.bookhubbackend.service.LoanService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,6 +69,27 @@ public class LoanController {
         );
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stats")
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Statistiques du tableau de bord", description = "Réservé aux bibliothécaires. Retourne le nombre total de livres, d'emprunts actifs et d'emprunts en retard.")
+    public ResponseEntity<DashboardStatsDto> getStats() {
+        return ResponseEntity.ok(loanService.getStats());
+    }
+
+    @GetMapping("/top10")
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Top 10 des livres les plus empruntés", description = "Réservé aux bibliothécaires. Classement des 10 livres les plus empruntés toutes périodes confondues.")
+    public ResponseEntity<List<TopBookDto>> getTop10MostBorrowed() {
+        return ResponseEntity.ok(loanService.getTop10MostBorrowed());
+    }
+
+    @GetMapping("/overdue")
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Retards les plus urgents", description = "Réservé aux bibliothécaires. Liste des emprunts en retard, du plus ancien au plus récent.")
+    public ResponseEntity<List<OverdueLoanDto>> getOverdueLoansRanked() {
+        return ResponseEntity.ok(loanService.getOverdueLoansRanked());
     }
 
     @GetMapping
