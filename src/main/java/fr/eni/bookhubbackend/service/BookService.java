@@ -33,13 +33,13 @@ public class BookService {
         return bookRepository.searchBook(search, pageable).map(bookMapper::toBookDto);
     }
 
-    public void addBook(Book book) {
+    public Book addBook(Book book) {
         book.setIsAvailable(true);
-        bookRepository.save(book);
+        return bookRepository.save(book);
     }
 
-    public void updateBook(Book book) {
-        bookRepository.save(book);
+    public Book updateBook(Book book) {
+        return bookRepository.save(book);
     }
 
     public void deleteBook(Long idBook) {

@@ -4,6 +4,7 @@ import fr.eni.bookhubbackend.entity.bo.Rating;
 import fr.eni.bookhubbackend.entity.dto.BookDto;
 import fr.eni.bookhubbackend.entity.dto.RatingDto;
 import fr.eni.bookhubbackend.entity.dto.Search;
+import fr.eni.bookhubbackend.mapper.BookMapper;
 import fr.eni.bookhubbackend.mapper.RatingMapper;
 import fr.eni.bookhubbackend.service.BookService;
 import fr.eni.bookhubbackend.service.RatingService;
@@ -37,6 +38,7 @@ public class BookController {
     private final BookService bookService;
     private final RatingService ratingService;
     private final RatingMapper ratingMapper;
+    private final BookMapper bookMapper;
 
     @GetMapping("{id}")
     public ResponseEntity<BookDto> findBookById(@PathVariable final Long id) {
@@ -60,8 +62,9 @@ public class BookController {
     @Operation(summary = "Ajouter un livre", description = "Réservé au bibliothécaire. Ajoute un nouveau livre.")
     public ResponseEntity<?> createBook(@Valid @RequestBody Book book) {
         if (book != null && book.getId() == null) {
-            bookService.addBook(book);
-            return ResponseEntity.status(HttpStatus.CREATED).body(book);
+            Book returnedBook = bookService.addBook(book);
+            BookDto response = bookMapper.toBookDto(returnedBook);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
         }
@@ -75,8 +78,9 @@ public class BookController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
         }
 
-        bookService.updateBook(book);
-        return ResponseEntity.ok(book);
+        Book returnedBook = bookService.updateBook(book);
+        BookDto response = bookMapper.toBookDto(returnedBook);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
