@@ -19,4 +19,6 @@ public class LoanResponseDto {
     private String bookTitle;
     private boolean late;
     private Long bookId;
+    private String firstName;
+    private String lastName;
 }
