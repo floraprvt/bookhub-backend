@@ -56,6 +56,7 @@ public class BookController {
 
     @PostMapping
     @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Ajouter un livre", description = "Réservé au bibliothécaire. Ajoute un nouveau livre.")
     public ResponseEntity<?> createBook(@Valid @RequestBody Book book) {
         if (book != null && book.getId() == null) {
             bookService.addBook(book);
@@ -67,20 +68,18 @@ public class BookController {
 
     @PutMapping
     @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Mettre à jour un livre", description = "Réservé au bibliothécaire. Met à jour un livre existant.")
     public ResponseEntity<?> updateBook(@Valid @RequestBody Book book) {
-        try {
-            if (book == null || book.getId() == null || book.getId() <= 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
-            }
-
-            bookService.updateBook(book);
-            return ResponseEntity.ok(book);
-        }  catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (book == null || book.getId() == null || book.getId() <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
         }
+
+        bookService.updateBook(book);
+        return ResponseEntity.ok(book);
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un livre", description = "Réservé à l'administrateur. Supprime un livre.")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         if (id <= 0) {
@@ -97,7 +96,6 @@ public class BookController {
         if (id <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
         }
-
 
         Rating returnedRating = ratingService.saveRating(id, rating, principal.getName());
         RatingDto response = ratingMapper.toRatingDto(returnedRating);
