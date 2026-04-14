@@ -3,6 +3,9 @@ package fr.eni.bookhubbackend.service;
 import fr.eni.bookhubbackend.entity.bo.Book;
 import fr.eni.bookhubbackend.entity.bo.Loan;
 import fr.eni.bookhubbackend.entity.bo.User;
+import fr.eni.bookhubbackend.entity.bo.dto.DashboardStatsDto;
+import fr.eni.bookhubbackend.entity.bo.dto.OverdueLoanDto;
+import fr.eni.bookhubbackend.entity.bo.dto.TopBookDto;
 import fr.eni.bookhubbackend.entity.enums.RoleEnum;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.LoanRepository;
@@ -10,11 +13,13 @@ import fr.eni.bookhubbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -106,5 +111,32 @@ public class LoanService {
 
     public List<Loan> getAllLoans(){
         return loanRepository.findAll();
+    }
+
+    public DashboardStatsDto getStats() {
+        long totalBooks = bookRepository.count();
+        long activeLoans = loanRepository.countByIsReturnedFalse();
+        long overdueLoans = loanRepository.countByIsReturnedFalseAndReturnDateBefore(LocalDate.now());
+        return new DashboardStatsDto(totalBooks, activeLoans, overdueLoans);
+    }
+
+    public List<TopBookDto> getTop10MostBorrowed() {
+        return loanRepository.findTop10MostBorrowed(PageRequest.of(0, 10));
+    }
+
+    public List<OverdueLoanDto> getOverdueLoansRanked() {
+        LocalDate today = LocalDate.now();
+        return loanRepository.findByIsReturnedFalseAndReturnDateBeforeOrderByReturnDateAsc(today)
+                .stream()
+                .map(loan -> new OverdueLoanDto(
+                        loan.getId(),
+                        loan.getUser().getId(),
+                        loan.getUser().getFirstName(),
+                        loan.getUser().getLastName(),
+                        loan.getBook().getTitle(),
+                        loan.getReturnDate(),
+                        ChronoUnit.DAYS.between(loan.getReturnDate(), today)
+                ))
+                .toList();
     }
 }
