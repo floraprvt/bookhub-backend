@@ -10,4 +10,5 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     int countByUserAndIsReturnedFalse(User user);
     List<Loan> findAllByUser(User user);
+    void deleteAllByUser(User user);
 }

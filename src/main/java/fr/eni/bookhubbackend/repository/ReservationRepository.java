@@ -1,6 +1,7 @@
 package fr.eni.bookhubbackend.repository;
 
 import fr.eni.bookhubbackend.entity.bo.Reservation;
+import fr.eni.bookhubbackend.entity.bo.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -11,5 +12,8 @@ public interface ReservationRepository extends CrudRepository<Reservation,Long> 
 
     Boolean existsByUserIdAndBookId(final Long userId, final Long bookId);
     void deleteByUserIdAndBookId(final Long userId, final Long bookId);
+
+    long countByUser(User user);
+    void deleteAllByUser(User user);
 
 }
