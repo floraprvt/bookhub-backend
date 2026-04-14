@@ -43,6 +43,12 @@ public class BookService {
     }
 
     public void deleteBook(Long idBook) {
+        Book book = bookRepository.findById(idBook).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
+
+        if (book.getIsAvailable() == false) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete a book that is currently on loan");
+        }
+
         bookRepository.deleteById(idBook);
     }
 }
