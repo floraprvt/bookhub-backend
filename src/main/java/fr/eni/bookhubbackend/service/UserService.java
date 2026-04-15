@@ -7,9 +7,11 @@ import fr.eni.bookhubbackend.entity.bo.dto.UpdateProfileRequestDto;
 import fr.eni.bookhubbackend.entity.bo.dto.UpdateUserRoleRequestDto;
 import fr.eni.bookhubbackend.mapper.UserMapper;
 import fr.eni.bookhubbackend.repository.LoanRepository;
+import fr.eni.bookhubbackend.repository.NotificationRepository;
 import fr.eni.bookhubbackend.repository.RatingRepository;
 import fr.eni.bookhubbackend.repository.ReservationRepository;
 import fr.eni.bookhubbackend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ public class UserService {
     private final LoanRepository loanRepository;
     private final ReservationRepository reservationRepository;
     private final RatingRepository ratingRepository;
+    private final NotificationRepository notificationRepository;
 
     public ProfileResponseDto getProfile(String email){
         User user = userRepository.findByEmail(email)
@@ -74,6 +77,7 @@ public class UserService {
         return userMapper.toProfileDto(userRepository.save(user));
     }
 
+    @Transactional
     public void deleteAccount(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
@@ -87,6 +91,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,"Vous ne pouvez pas supprimer votre compte tant que vous avez des réservatins en cours");
         }
 
+        notificationRepository.deleteAllByUser(user);
         reservationRepository.deleteAllByUser(user);
         ratingRepository.deleteAllByUser(user);
         loanRepository.deleteAllByUser(user);
