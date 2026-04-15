@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python3:*)",
-      "Bash(xxd \"C:\\\\Users\\\\valen\\\\Desktop\\\\dev\\\\bookhub-backend\\\\README.md\")",
-      "Bash(node:*)"
-    ]
-  }
-}
