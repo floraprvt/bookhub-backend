@@ -172,6 +172,25 @@ public class LoanService {
         }
     }
 
+    public void remindOverdueLoan(Long loanId) {
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new EntityNotFoundException("Emprunt introuvable."));
+
+        if (loan.getIsReturned()) {
+            throw new IllegalStateException("Cet emprunt a déjà été rendu.");
+        }
+
+        if (!loan.getReturnDate().isBefore(LocalDate.now())) {
+            throw new IllegalStateException("Cet emprunt n'est pas en retard.");
+        }
+
+        notificationService.createNotification(
+                loan.getUser(),
+                "Rappel : votre emprunt du livre \"" + loan.getBook().getTitle() + "\" est en retard depuis le "
+                        + loan.getReturnDate() + ". Merci de le retourner dès que possible."
+        );
+    }
+
     public List<OverdueLoanDto> getOverdueLoansRanked() {
         LocalDate today = LocalDate.now();
         return loanRepository.findByIsReturnedFalseAndReturnDateBeforeOrderByReturnDateAsc(today)

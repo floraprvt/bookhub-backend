@@ -85,6 +85,14 @@ public class LoanController {
         return ResponseEntity.ok(loanService.getTop10MostBorrowed());
     }
 
+    @PostMapping("/{id}/remind")
+    @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
+    @Operation(summary = "Relancer un emprunt en retard", description = "Envoie une notification de rappel à l'utilisateur en retard.")
+    public ResponseEntity<Void> remindOverdueLoan(@PathVariable("id") Long id) {
+        loanService.remindOverdueLoan(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/overdue")
     @PreAuthorize("hasRole('LIBRARIAN') or hasRole('ADMIN')")
     @Operation(summary = "Retards les plus urgents", description = "Réservé aux bibliothécaires. Liste des emprunts en retard, du plus ancien au plus récent.")
