@@ -101,7 +101,7 @@ public class LoanService {
         reservationRepository.findFirstByBookOrderByDateAsc(loan.getBook())
                 .ifPresent(reservation -> notificationService.createNotification(
                         reservation.getUser(),
-                        "Le livre " + loan.getBook().getTitle() + "est maintenant disponible à l'emprunt !"
+                        "Le livre " + loan.getBook().getTitle() + " est maintenant disponible à l'emprunt !"
                 ));
 
         return loanRepository.save(loan);

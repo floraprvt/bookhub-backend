@@ -5,6 +5,7 @@ import fr.eni.bookhubbackend.entity.bo.dto.AuthResponseDto;
 import fr.eni.bookhubbackend.entity.bo.dto.LoginRequestDto;
 import fr.eni.bookhubbackend.entity.bo.dto.RegisterRequestDto;
 import fr.eni.bookhubbackend.entity.enums.RoleEnum;
+import fr.eni.bookhubbackend.mapper.UserMapper;
 import fr.eni.bookhubbackend.repository.UserRepository;
 import fr.eni.bookhubbackend.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,10 +39,14 @@ class AuthServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private AuthService authService;
 
     private User user;
+    private AuthResponseDto authResponse;
     private RegisterRequestDto registerRequest;
     private LoginRequestDto loginRequest;
 
@@ -55,6 +60,8 @@ class AuthServiceTest {
                 .lastName("Dupont")
                 .role(RoleEnum.USER)
                 .build();
+
+        authResponse = new AuthResponseDto(null, "USER", "ahmed@bookhub.fr");
 
         registerRequest = new RegisterRequestDto();
         registerRequest.setEmail("ahmed@bookhub.fr");
@@ -73,9 +80,11 @@ class AuthServiceTest {
     void register_success() {
         // GIVEN
         when(userRepository.existsByEmail("ahmed@bookhub.fr")).thenReturn(false);
+        when(userMapper.toEntity(any(RegisterRequestDto.class))).thenReturn(user);
         when(passwordEncoder.encode("Azerty123!@#")).thenReturn("$2a$12$hashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateToken(any(User.class))).thenReturn("fake.jwt.token");
+        when(userMapper.toDto(any(User.class))).thenReturn(authResponse);
 
         // WHEN
         AuthResponseDto response = authService.register(registerRequest);
@@ -109,9 +118,11 @@ class AuthServiceTest {
     void register_passwordIsHashed() {
         // GIVEN
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(userMapper.toEntity(any(RegisterRequestDto.class))).thenReturn(user);
         when(passwordEncoder.encode(anyString())).thenReturn("$2a$12$hashedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateToken(any(User.class))).thenReturn("token");
+        when(userMapper.toDto(any(User.class))).thenReturn(authResponse);
 
         // WHEN
         authService.register(registerRequest);
@@ -131,6 +142,7 @@ class AuthServiceTest {
         when(userRepository.findByEmail("ahmed@bookhub.fr")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Azerty123!@#", "$2a$12$hashedPassword")).thenReturn(true);
         when(jwtService.generateToken(user)).thenReturn("fake.jwt.token");
+        when(userMapper.toDto(any(User.class))).thenReturn(authResponse);
 
         // WHEN
         AuthResponseDto response = authService.login(loginRequest);
