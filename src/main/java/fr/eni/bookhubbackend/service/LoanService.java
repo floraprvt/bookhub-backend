@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,7 +45,16 @@ public class LoanService {
                 .orElseThrow(() -> new EntityNotFoundException("Book introuvable."));
 
         if (!book.getIsAvailable()) {
-            throw new IllegalStateException("Ce livre n'est pas disponible.");
+            boolean isActivelyLoaned = loanRepository.existsActiveLoanByBookId(book.getId());
+            if (isActivelyLoaned) {
+                throw new IllegalStateException("Ce livre est actuellement emprunté.");
+            }
+            boolean isTopReservation = reservationRepository.findFirstByBookOrderByDateAsc(book)
+                    .map(r -> r.getUser().getId().equals(user.getId()))
+                    .orElse(false);
+            if (!isTopReservation) {
+                throw new IllegalStateException("Ce livre n'est pas disponible.");
+            }
         }
 
         int activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
@@ -70,6 +80,7 @@ public class LoanService {
 
         book.setIsAvailable(false);
         bookRepository.save(book);
+        reservationRepository.deleteByUserAndBook(user, book);
 
         return loanRepository.save(newLoan);
     }
@@ -95,14 +106,22 @@ public class LoanService {
 
         loan.setIsReturned(true);
         loan.setReturnDate(LocalDate.now());
-        loan.getBook().setIsAvailable(true);
-        bookRepository.save(loan.getBook());
 
-        reservationRepository.findFirstByBookOrderByDateAsc(loan.getBook())
-                .ifPresent(reservation -> notificationService.createNotification(
-                        reservation.getUser(),
-                        "Le livre " + loan.getBook().getTitle() + " est maintenant disponible à l'emprunt !"
-                ));
+        Book book = loan.getBook();
+        boolean hasReservation = reservationRepository.findFirstByBookOrderByDateAsc(book)
+                .map(reservation -> {
+                    notificationService.createNotification(
+                            reservation.getUser(),
+                            "Le livre \"" + book.getTitle() + "\" est disponible pour vous ! Vous pouvez maintenant l'emprunter."
+                    );
+                    return true;
+                })
+                .orElse(false);
+
+        if (!hasReservation) {
+            book.setIsAvailable(true);
+        }
+        bookRepository.save(book);
 
         return loanRepository.save(loan);
     }
@@ -132,6 +151,25 @@ public class LoanService {
 
     public List<TopBookDto> getTop10MostBorrowed() {
         return loanRepository.findTop10MostBorrowed(PageRequest.of(0, 10));
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    @Transactional
+    public void notifyOverdueLoans() {
+        List<Loan> overdueLoans = loanRepository
+                .findByIsReturnedFalseAndReturnDateBeforeAndOverdueNotifiedFalse(LocalDate.now());
+
+        System.out.println("[CRON] " + overdueLoans.size() + " emprunt(s) en retard trouvé(s)");
+
+        for (Loan loan : overdueLoans) {
+            notificationService.createNotification(
+                    loan.getUser(),
+                    "Votre emprunt du livre \"" + loan.getBook().getTitle() + "\" est en retard depuis le "
+                            + loan.getReturnDate() + ". Merci de le retourner dès que possible."
+            );
+            loan.setOverdueNotified(true);
+            loanRepository.save(loan);
+        }
     }
 
     public List<OverdueLoanDto> getOverdueLoansRanked() {
