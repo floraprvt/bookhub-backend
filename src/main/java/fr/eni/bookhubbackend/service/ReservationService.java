@@ -7,6 +7,7 @@ import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
 import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.ReservationRepository;
+import fr.eni.bookhubbackend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,11 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
+    private final UserRepository userRepository;
+    private static final int MAX_RESERVATIONS = 5;
 
     public List<ReservationDto> findMyReservations(final Long idUser) {
-        if (!reservationRepository.existsById(idUser)) {
+        if (!userRepository.existsById(idUser)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, USER_NOT_FOUND);
         }
         return reservationRepository.findReservationsWithRankByUser(idUser);
@@ -35,11 +38,15 @@ public class ReservationService {
     @Transactional
     public void createReservation(final User user, final CreateReservationDto createReservationDto) {
 
-        if (reservationRepository.countByUserId(user.getId()) >= 5) {
+        Book book = bookRepository.findById(createReservationDto.bookId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
+
+        if (reservationRepository.countByUserId(user.getId()) >= MAX_RESERVATIONS) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, NUMBER_MAXIMUM_RESERVATION);
         }
 
-        Book book = bookRepository.findById(createReservationDto.bookId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
+        if(reservationRepository.existsByUserIdAndBookId(user.getId(), createReservationDto.bookId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, RESERVATION_ALREADY_BOOKED);
+        }
 
         if (book.getIsAvailable()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, BOOK_IS_AVAILABLE);
@@ -55,7 +62,7 @@ public class ReservationService {
     @Transactional
     public void deleteReservation(final User user, final Long id) {
         Reservation reservation = reservationRepository.findById(id).orElseThrow(()
-                -> new ResponseStatusException(HttpStatus.BAD_REQUEST, RESERVATION_NOT_FOUND));
+                -> new ResponseStatusException(HttpStatus.NOT_FOUND, RESERVATION_NOT_FOUND));
 
         boolean isOwner = reservation.getUser().getId().equals(user.getId());
         boolean isAdmin = user.getRole().equals("ROLE_ADMIN");
@@ -65,5 +72,16 @@ public class ReservationService {
         }
 
         reservationRepository.deleteById(id);
+    }
+
+    public boolean checkReservationExists(Long userId, Long bookId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, USER_NOT_FOUND));
+
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
+
+        return reservationRepository.existsByUserIdAndBookId(user.getId(), book.getId());
     }
 }
