@@ -5,6 +5,7 @@ import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
 import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import fr.eni.bookhubbackend.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,7 @@ public class ReservationController {
     ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<Void> createReservation(@RequestBody CreateReservationDto createReservationDto, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> createReservation(@Valid @RequestBody CreateReservationDto createReservationDto, @AuthenticationPrincipal User user) {
         reservationService.createReservation(user, createReservationDto);
         return ResponseEntity.noContent().build();
     }
@@ -35,6 +36,14 @@ public class ReservationController {
     public ResponseEntity<Void> deleteMyReservations(@AuthenticationPrincipal final User user, @PathVariable final Long id) {
         reservationService.deleteReservation(user, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/exists/{bookId}")
+    public boolean hasReserved(
+            @AuthenticationPrincipal final User user,
+            @PathVariable Long bookId
+    ) {
+        return reservationService.checkReservationExists(user.getId(), bookId);
     }
 
 

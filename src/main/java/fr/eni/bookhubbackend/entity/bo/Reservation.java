@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "book_id"})
+        }
+)
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
