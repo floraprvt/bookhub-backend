@@ -47,16 +47,20 @@ public class RatingService {
         return ratingRepository.save(rating);
     }
 
-    public Rating updateRating(final Long bookId,Rating rating, String email) {
-        User ratingUSer = userRepository.findById(rating.getUser().getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        boolean isOwner = ratingUSer.getEmail().equals(email);
+    public Rating updateRating(Long ratingId, Rating rating, String email) {
 
+        User ratingUSer = userRepository.findById(rating.getUser().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        boolean isOwner = ratingUSer.getEmail().equals(email);
         if (!isOwner) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this rating");
         }
-
-        rating.setId(bookId);
-        return ratingRepository.save(rating);
+        Rating existingRating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new RuntimeException("Rating not found"));
+        existingRating.setScore(rating.getScore());
+        existingRating.setComment(rating.getComment());
+        existingRating.setDate(rating.getDate());
+        return ratingRepository.save(existingRating);
     }
 
     public void deleteRating(final Long id) {
