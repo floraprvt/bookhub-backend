@@ -9,6 +9,7 @@ import fr.eni.bookhubbackend.entity.bo.dto.TopBookDto;
 import fr.eni.bookhubbackend.entity.enums.RoleEnum;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.LoanRepository;
+import fr.eni.bookhubbackend.repository.ReservationRepository;
 import fr.eni.bookhubbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -30,6 +31,8 @@ public class LoanService {
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public Loan createLoan(String email, Long bookId) {
@@ -94,6 +97,13 @@ public class LoanService {
         loan.setReturnDate(LocalDate.now());
         loan.getBook().setIsAvailable(true);
         bookRepository.save(loan.getBook());
+
+        reservationRepository.findFirstByBookOrderByDateAsc(loan.getBook())
+                .ifPresent(reservation -> notificationService.createNotification(
+                        reservation.getUser(),
+                        "Le livre " + loan.getBook().getTitle() + "est maintenant disponible à l'emprunt !"
+                ));
+
         return loanRepository.save(loan);
     }
 
