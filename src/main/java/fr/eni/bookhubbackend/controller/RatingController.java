@@ -42,7 +42,7 @@ public class RatingController {
     @Operation(summary = "Changer un avis", description = "Permet à un utilisateur de changer un de ses avis.")
     public ResponseEntity<?> updateRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
         if (id <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Donnez un id valide");
         }
 
         Rating returnedRating = ratingService.updateRating(id, rating, principal.getName());
@@ -55,10 +55,10 @@ public class RatingController {
     @Operation(summary = "Supprimer un avis", description = "Réservé aux bibliothécaires. Supprime l'avis d'un utilisateur.")
     public ResponseEntity<?> deleteRating(@PathVariable final Long id, Principal principal) {
         if (id <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Donnez un id valide");
         }
 
         ratingService.deleteRating(id);
-        return ResponseEntity.ok("Rating with id " + id + " has been deleted");
+        return ResponseEntity.ok("Le commentaire avec l'id " + id + " a été supprimé");
     }
 }

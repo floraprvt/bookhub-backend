@@ -61,7 +61,7 @@ public class ReservationService {
         boolean isAdmin = user.getRole().equals("ROLE_ADMIN");
 
         if(!isOwner && !isAdmin){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You're not authorized to delete this reservation");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé à supprimé cette réservation");
         }
 
         reservationRepository.deleteById(id);

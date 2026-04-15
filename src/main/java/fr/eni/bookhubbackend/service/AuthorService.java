@@ -21,7 +21,7 @@ public class AuthorService {
 
     public Author findById(Long id) {
         return authorRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Auteur non trouvé"));
     }
 
     public Author create(Author author) {
@@ -30,7 +30,7 @@ public class AuthorService {
 
     public Author update(Long id, Author author) {
         if (!authorRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Auteur non trouvé");
         }
         author.setId(id);
         return authorRepository.save(author);
@@ -38,7 +38,7 @@ public class AuthorService {
 
     public void delete(Long id) {
         if (!authorRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Auteur non trouvé");
         }
         authorRepository.deleteById(id);
     }

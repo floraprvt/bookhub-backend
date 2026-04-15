@@ -33,13 +33,13 @@ public class RatingService {
 
     public Rating saveRating(Long bookId, Rating rating, String email) {
         if (ratingRepository.existsByBook_IdAndUser_Email(bookId, email)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already rated this book");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous avez déjà noté ce livre");
         }
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Book not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Livre introuvable"));
 
         rating.setId(null);
         rating.setUser(user);
@@ -50,13 +50,13 @@ public class RatingService {
     public Rating updateRating(Long ratingId, Rating rating, String email) {
 
         User ratingUSer = userRepository.findById(rating.getUser().getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         boolean isOwner = ratingUSer.getEmail().equals(email);
         if (!isOwner) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not allowed to update this rating");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'êtes pas autorisé de modifier cette note");
         }
         Rating existingRating = ratingRepository.findById(ratingId)
-                .orElseThrow(() -> new RuntimeException("Rating not found"));
+                .orElseThrow(() -> new RuntimeException("Note introuvable"));
         existingRating.setScore(rating.getScore());
         existingRating.setComment(rating.getComment());
         existingRating.setDate(rating.getDate());

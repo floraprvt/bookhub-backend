@@ -31,14 +31,14 @@ public class UserService {
 
     public ProfileResponseDto getProfile(String email){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
         return userMapper.toProfileDto(user);
     }
 
     public ProfileResponseDto updateProfile (String email, UpdateProfileRequestDto updateProfileRequestDto){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
         user.setFirstName(updateProfileRequestDto.getFirstName());
         user.setLastName(updateProfileRequestDto.getLastName());
@@ -48,9 +48,9 @@ public class UserService {
 
     public void changePassword (String email, ChangePasswordRequestDto changePasswordRequestDto){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         if(!passwordEncoder.matches(changePasswordRequestDto.getCurrentPassword(),  user.getPassword())){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Current Password is incorrect");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Le mot de passe actuel est incorrect");
         }
 
         user.setPassword(passwordEncoder.encode(changePasswordRequestDto.getNewPassword()));
@@ -63,28 +63,28 @@ public class UserService {
 
     public ProfileResponseDto getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         return userMapper.toProfileDto(user);
     }
 
     public ProfileResponseDto updateUserRole(Long id, UpdateUserRoleRequestDto dto) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         user.setRole(dto.getRole());
         return userMapper.toProfileDto(userRepository.save(user));
     }
 
     public void deleteAccount(String email){
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
         long activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
         if (activeLoans>0){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot delete accoutn with active loans");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Vous ne pouvez pas supprimer votre compte tant que vous avez des emprunts en cours");
         }
 
         long activeReservations = reservationRepository.countByUser(user);
         if (activeReservations>0){
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"Cannot delete accoutn with active reservations");
+            throw new ResponseStatusException(HttpStatus.CONFLICT,"Vous ne pouvez pas supprimer votre compte tant que vous avez des réservatins en cours");
         }
 
         reservationRepository.deleteAllByUser(user);

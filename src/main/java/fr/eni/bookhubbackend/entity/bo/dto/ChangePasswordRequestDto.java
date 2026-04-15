@@ -12,7 +12,7 @@ public class ChangePasswordRequestDto {
     @NotBlank
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{12,}$",
-            message = "12 car. min, 1 maj, 1 min, 1 chiffre, 1 spécial"
+            message = "Le mot de passe doit contenir 12 car. min, 1 maj, 1 min, 1 chiffre, 1 spécial"
     )
     private String newPassword;
 }

@@ -66,7 +66,7 @@ public class BookController {
             BookDto response = bookMapper.toBookDto(returnedBook);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, do not provide an id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le livre est obligatoire, ne donnez pas d'id");
         }
     }
 
@@ -75,7 +75,7 @@ public class BookController {
     @Operation(summary = "Mettre à jour un livre", description = "Réservé au bibliothécaire. Met à jour un livre existant.")
     public ResponseEntity<?> updateBook(@Valid @RequestBody Book book) {
         if (book == null || book.getId() == null || book.getId() <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Book is mandatory, provide a valid id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le livre est obligatoire, donnez un id valide");
         }
 
         Book returnedBook = bookService.updateBook(book);
@@ -88,18 +88,18 @@ public class BookController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteBook(@PathVariable Long id) {
         if (id <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Donnez un id valide");
         }
 
         bookService.deleteBook(id);
-        return ResponseEntity.ok("Book with id " + id + " has been deleted");
+        return ResponseEntity.ok("Le livre avec l'id " + id + " a bien été supprimé");
     }
 
     @PostMapping("{id}/ratings")
     @Operation(summary = "Ajouter un avis", description = "Ajoute l'avis de l'utilisateur sur un livre.")
     public ResponseEntity<?> addBookRating(@PathVariable final Long id, @RequestBody Rating rating, Principal principal) {
         if (id <= 0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide a valid id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Donnez un id valide");
         }
 
         Rating returnedRating = ratingService.saveRating(id, rating, principal.getName());

@@ -21,7 +21,7 @@ public class CategoryService {
 
     public Category findById(Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Catégorie introuvable"));
     }
 
     public Category create(Category category) {
@@ -30,7 +30,7 @@ public class CategoryService {
 
     public Category update(Long id, Category category) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Catégorie introuvable");
         }
         category.setId(id);
         return categoryRepository.save(category);
@@ -38,7 +38,7 @@ public class CategoryService {
 
     public void delete(Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Catégorie introuvable");
         }
         categoryRepository.deleteById(id);
     }

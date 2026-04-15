@@ -35,18 +35,18 @@ public class LoanService {
     public Loan createLoan(String email, Long bookId) {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Email not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Email introuvable."));
 
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException("Book not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Book introuvable."));
 
         if (!book.getIsAvailable()) {
-            throw new IllegalStateException("This book is not available.");
+            throw new IllegalStateException("Ce livre n'est pas disponible.");
         }
 
         int activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
         if (activeLoans >= 3) {
-            throw new IllegalStateException("The user has reached their maximum quota of 3 loans.");
+            throw new IllegalStateException("Vous avez atteint votre quota de 3 réservations.");
         }
 
         boolean hasLateLoans = loanRepository.findAllByUser(user).stream()
@@ -54,7 +54,7 @@ public class LoanService {
                         && l.getReturnDate().isBefore(LocalDate.now()));
 
         if (hasLateLoans) {
-            throw new IllegalStateException("You cannot borrow a new book while you have overdue loans");
+            throw new IllegalStateException("Vous ne pouvez pas emprunter de nouveaux livres tant que vous avez des retards sur d'autres.");
         }
 
         Loan newLoan = Loan.builder()
@@ -74,7 +74,7 @@ public class LoanService {
     @Transactional
     public Loan returnLoan(Long loanId, String email) {
         Loan loan = loanRepository.findById(loanId)
-                .orElseThrow(() -> new EntityNotFoundException("Loan not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Emprunt introuvable."));
 
         boolean isOwner = loan.getUser().getEmail().equals(email);
         boolean isLibrarian = userRepository.findByEmail(email)
@@ -83,11 +83,11 @@ public class LoanService {
 
         if (!isOwner && !isLibrarian) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "You are not allowed to return another user's loan");
+                    "Vous ne pouvez pas retourner un emprunt d'une autre personne.");
         }
 
         if (loan.getIsReturned()) {
-            throw new IllegalStateException("The loan has already been returned.");
+            throw new IllegalStateException("L'emprunt a déjà été retourné.");
         }
 
         loan.setIsReturned(true);
@@ -99,7 +99,7 @@ public class LoanService {
 
     public Map<String, List<Loan>> getMyLoans(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found."));
+                .orElseThrow(() -> new EntityNotFoundException("Utilisateur introuvable."));
 
         List<Loan> all = loanRepository.findAllByUser(user);
 

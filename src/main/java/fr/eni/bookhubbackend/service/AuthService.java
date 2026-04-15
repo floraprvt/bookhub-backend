@@ -25,7 +25,7 @@ public class AuthService {
 
     public AuthResponseDto register(RegisterRequestDto req) {
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already taken");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email déjà prit");
         }
         User user = userMapper.toEntity(req);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
@@ -39,11 +39,11 @@ public class AuthService {
 
     public AuthResponseDto login(LoginRequestDto req) {
         User user = userRepository.findByEmail(req.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Id's not matching"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Les informations sont incorrect"));
 
 
         if (!passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Id's not matching");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Les informations sont incorrect");
         }
         String token = jwtService.generateToken(user);
         AuthResponseDto response = userMapper.toDto(user);
