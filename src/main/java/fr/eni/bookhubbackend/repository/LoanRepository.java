@@ -23,4 +23,5 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<TopBookDto> findTop10MostBorrowed(Pageable pageable);
 
     List<Loan> findByIsReturnedFalseAndReturnDateBeforeOrderByReturnDateAsc(LocalDate date);
+    boolean existsByUserIdAndBookId(Long userId, Long bookId);
 }

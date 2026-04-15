@@ -6,6 +6,7 @@ import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
 import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import fr.eni.bookhubbackend.repository.BookRepository;
+import fr.eni.bookhubbackend.repository.LoanRepository;
 import fr.eni.bookhubbackend.repository.ReservationRepository;
 import fr.eni.bookhubbackend.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,7 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final LoanRepository loanRepository;
     private static final int MAX_RESERVATIONS = 5;
 
     public List<ReservationDto> findMyReservations(final Long idUser) {
@@ -82,6 +84,10 @@ public class ReservationService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, BOOK_NOT_FOUND));
 
-        return reservationRepository.existsByUserIdAndBookId(user.getId(), book.getId());
+        boolean hasReservation = reservationRepository.existsByUserIdAndBookId(user.getId(), book.getId());
+
+        boolean hasLoan = loanRepository.existsByUserIdAndBookId(user.getId(), book.getId());
+
+        return hasReservation || hasLoan;
     }
 }
