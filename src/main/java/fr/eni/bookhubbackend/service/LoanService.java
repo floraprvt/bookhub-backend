@@ -159,8 +159,6 @@ public class LoanService {
         List<Loan> overdueLoans = loanRepository
                 .findByIsReturnedFalseAndReturnDateBeforeAndOverdueNotifiedFalse(LocalDate.now());
 
-        System.out.println("[CRON] " + overdueLoans.size() + " emprunt(s) en retard trouvé(s)");
-
         for (Loan loan : overdueLoans) {
             notificationService.createNotification(
                     loan.getUser(),
