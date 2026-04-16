@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(indexes = @Index(name = "idx_book_title", columnList = "title"))
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
