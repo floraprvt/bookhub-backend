@@ -256,3 +256,22 @@ src/main/java/fr/eni/bookhubbacked/
 ## Frontend
 
 Le frontend (Angular) tourne sur `http://localhost:4200`. Le CORS est configuré pour autoriser cette origine.
+
+## Rapport technique
+
+### Problème rencontré
+Lors de la récupération des réservations d’un utilisateur, le rang dans la file d’attente était toujours égal à `1`, malgré l’utilisation de la fonction SQL `ROW_NUMBER()`.
+
+### Analyse
+La requête utilisait un filtre `WHERE user_id = :userId` avant le calcul du rang.
+
+En SQL, le filtrage est appliqué avant les fonctions de fenêtrage.  
+Ainsi, le `ROW_NUMBER()` était calculé uniquement sur les réservations de l’utilisateur, et non sur l’ensemble des réservations d’un livre.
+
+### Solution apportée
+Le calcul du rang a été déplacé dans une sous-requête afin de prendre en compte toutes les réservations.
+
+Le filtrage par utilisateur est ensuite appliqué après, permettant d’obtenir le rang réel dans la file d’attente.
+
+### Conclusion
+Ce problème a permis de mieux comprendre l’ordre d’exécution des requêtes SQL et l’impact du `WHERE` sur les fonctions comme `ROW_NUMBER()`.
