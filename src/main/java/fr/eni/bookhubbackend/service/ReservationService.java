@@ -5,6 +5,7 @@ import fr.eni.bookhubbackend.entity.bo.Reservation;
 import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
 import fr.eni.bookhubbackend.entity.dto.ReservationDto;
+import fr.eni.bookhubbackend.entity.dto.ReservationResponseDto;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.LoanRepository;
 import fr.eni.bookhubbackend.repository.ReservationRepository;
@@ -30,11 +31,16 @@ public class ReservationService {
     private final LoanRepository loanRepository;
     private static final int MAX_RESERVATIONS = 5;
 
-    public List<ReservationDto> findMyReservations(final Long idUser) {
+    public List<ReservationResponseDto> findMyReservations(final Long idUser) {
         if (!userRepository.existsById(idUser)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, USER_NOT_FOUND);
         }
-        return reservationRepository.findReservationsWithRankByUser(idUser);
+        return reservationRepository.findReservationsWithRankByUser(idUser).stream()
+                .map(r -> new ReservationResponseDto(
+                        r.id(), r.bookId(), r.userId(), r.bookTitle(), r.bookImage(), r.date(), r.queueRank(),
+                        r.queueRank() == 1 && !loanRepository.existsActiveLoanByBookId(r.bookId())
+                ))
+                .toList();
     }
 
     @Transactional
@@ -86,7 +92,7 @@ public class ReservationService {
 
         boolean hasReservation = reservationRepository.existsByUserIdAndBookId(user.getId(), book.getId());
 
-        boolean hasLoan = loanRepository.existsByUserIdAndBookId(user.getId(), book.getId());
+        boolean hasLoan = loanRepository.existsActiveLoanByUserIdAndBookId(user.getId(), book.getId());
 
         return hasReservation || hasLoan;
     }

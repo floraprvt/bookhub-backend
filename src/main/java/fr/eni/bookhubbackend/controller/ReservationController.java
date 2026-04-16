@@ -3,7 +3,7 @@ package fr.eni.bookhubbackend.controller;
 
 import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
-import fr.eni.bookhubbackend.entity.dto.ReservationDto;
+import fr.eni.bookhubbackend.entity.dto.ReservationResponseDto;
 import fr.eni.bookhubbackend.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ public class ReservationController {
     }
 
     @GetMapping("my")
-    public ResponseEntity<List<ReservationDto>> findMyReservations(@AuthenticationPrincipal final User user) {
+    public ResponseEntity<List<ReservationResponseDto>> findMyReservations(@AuthenticationPrincipal final User user) {
         return ResponseEntity.ok(reservationService.findMyReservations(user.getId()));
     }
 

@@ -28,11 +28,13 @@ public class Loan {
     @NotNull
     private Boolean isReturned = false;
 
+    @Builder.Default
+    private Boolean overdueNotified = false;
+
     @NotNull
     @ManyToOne
     private User user;
 
-    @NotNull
     @ManyToOne
     private Book book;
 }
