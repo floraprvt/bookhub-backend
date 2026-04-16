@@ -59,7 +59,7 @@ public class LoanService {
 
         int activeLoans = loanRepository.countByUserAndIsReturnedFalse(user);
         if (activeLoans >= 3) {
-            throw new IllegalStateException("Vous avez atteint votre quota de 3 réservations.");
+            throw new IllegalStateException("Vous avez atteint votre quota de 3 emprunts.");
         }
 
         boolean hasLateLoans = loanRepository.findAllByUser(user).stream()

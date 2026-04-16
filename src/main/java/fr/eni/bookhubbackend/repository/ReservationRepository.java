@@ -15,23 +15,20 @@ public interface ReservationRepository extends CrudRepository<Reservation,Long> 
 
 
     @Query(value = """
-             SELECT *
-            FROM (
-                SELECT
-                    r.id as id,
-                    r.user_id as userId,
-                    b.id as bookId,
-                    b.title as bookTitle,
-                    b.image as bookImage,
-                    r.date as date,
-                    ROW_NUMBER() OVER (
-                        PARTITION BY r.book_id
-                        ORDER BY r.date ASC
-                    ) as rank
-                FROM reservation r
-                JOIN book b ON b.id = r.book_id
-            ) sub
-            WHERE sub.userId = :userId
+             SELECT
+                 r.id as id,
+                 b.id as bookId,
+                 r.user_id as userId,
+                 b.title as bookTitle,
+                 b.image as bookImage,
+                 r.date as date,
+                 ROW_NUMBER() OVER (
+                     PARTITION BY r.book_id
+                     ORDER BY r.date ASC
+                 ) as queueRank
+             FROM reservation r
+             JOIN book b ON b.id = r.book_id
+             WHERE r.user_id = :userId
 """, nativeQuery = true)
     List<ReservationDto> findReservationsWithRankByUser(@Param("userId") final Long userId);
 
