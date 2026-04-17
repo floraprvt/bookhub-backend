@@ -4,7 +4,6 @@ import fr.eni.bookhubbackend.entity.bo.Book;
 import fr.eni.bookhubbackend.entity.bo.Reservation;
 import fr.eni.bookhubbackend.entity.bo.User;
 import fr.eni.bookhubbackend.entity.dto.CreateReservationDto;
-import fr.eni.bookhubbackend.entity.dto.ReservationDto;
 import fr.eni.bookhubbackend.entity.dto.ReservationResponseDto;
 import fr.eni.bookhubbackend.repository.BookRepository;
 import fr.eni.bookhubbackend.repository.LoanRepository;
